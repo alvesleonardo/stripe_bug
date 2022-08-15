@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -60,6 +62,24 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+    /* Used for server calls */
+    implementation 'com.squareup.okio:okio:3.2.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+
+    /* Used to make Retrofit easier and GSON & Rx-compatible*/
+    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
     //STRIPE
     implementation 'com.stripe:stripe-android:20.8.0'

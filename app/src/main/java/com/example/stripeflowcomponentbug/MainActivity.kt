@@ -28,7 +28,9 @@ import com.example.stripeflowcomponentbug.ui.theme.StripeFlowComponentBugTheme
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.model.PaymentOption
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var paymentSelected: MutableState<PaymentOption?> = mutableStateOf(null)
     private var ready: MutableState<Boolean> = mutableStateOf(false)
