@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.stripeflowcomponentbug.contants.Keys
 import com.example.stripeflowcomponentbug.ui.theme.StripeFlowComponentBugTheme
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             fun setupStripeSdk(
-                clientSecret: String,
+                secretKey: String,
                 customerId: String?,
                 ephemeralKey: String?,
             ) {
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
                         null
                     }
                 flowController.configureWithSetupIntent(
-                    setupIntentClientSecret = clientSecret,
+                    setupIntentClientSecret = secretKey,
                     configuration = PaymentSheet.Configuration(
                         merchantDisplayName = "TEST APP",
                         customer = customer,
@@ -82,9 +83,9 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(key1 = true, block = {
                 setupStripeSdk(
-                    "seti_1LX7W6E3DVYz6xay83zHdpyF_secret_MFclxKxUMYFdhhZpOtGsTOxJb3xAfW2",
-                    "cus_Jwg7rEbmusYpWj",
-                    "ek_test_YWNjdF8xSVQ1eHVFM0RWWXo2eGF5LEw1NHdPTjZTckd5SFFtQnR5SGcxTkszbHJPRERqTzc_00tqdwUCIs"
+                    Keys.SECRET_KEY,
+                    Keys.CUSTOMER_KEY,
+                    Keys.EPHEMERAL_KEY
                 )
             })
 

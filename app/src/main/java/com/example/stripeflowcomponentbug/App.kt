@@ -1,6 +1,7 @@
 package com.example.stripeflowcomponentbug
 
 import android.app.Application
+import com.example.stripeflowcomponentbug.contants.Keys
 import com.stripe.android.PaymentConfiguration
 
 class App : Application() {
@@ -8,7 +9,7 @@ class App : Application() {
         super.onCreate()
         PaymentConfiguration.init(
             applicationContext,
-            "pk_test_51IT5xuE3DVYz6xayAC2jdR863HcehUS7805HCTXYtJcOg3sgJVGVymzZUKS7r2TcgAJ6pJAXlXJTdkznGlBJwAf900TNHNwvuL"
+            Keys.STIPE_KEY
         )
     }
 }
