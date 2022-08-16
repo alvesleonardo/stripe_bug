@@ -1,8 +1,10 @@
 package com.example.stripeflowcomponentbug
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -23,15 +25,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stripeflowcomponentbug.contants.Keys
+import com.example.stripeflowcomponentbug.domain.StripeViewModel
 import com.example.stripeflowcomponentbug.ui.theme.StripeFlowComponentBugTheme
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.model.PaymentOption
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    val viewModel: StripeViewModel by viewModels()
+
     private var paymentSelected: MutableState<PaymentOption?> = mutableStateOf(null)
     private var ready: MutableState<Boolean> = mutableStateOf(false)
     private var response: MutableState<String> = mutableStateOf("")
@@ -54,11 +60,13 @@ class MainActivity : ComponentActivity() {
             }
         )
         setContent {
+            val scope = rememberCoroutineScope()
             fun setupStripeSdk(
                 secretKey: String,
                 customerId: String?,
                 ephemeralKey: String?,
             ) {
+                Log.e("KEY", secretKey)
                 val customer =
                     if (!customerId.isNullOrBlank() && !ephemeralKey.isNullOrBlank()) {
                         PaymentSheet.CustomerConfiguration(customerId, ephemeralKey)
@@ -68,9 +76,9 @@ class MainActivity : ComponentActivity() {
                 flowController.configureWithSetupIntent(
                     setupIntentClientSecret = secretKey,
                     configuration = PaymentSheet.Configuration(
-                        merchantDisplayName = "TEST APP",
+                        merchantDisplayName = "Doji",
                         customer = customer,
-                        allowsDelayedPaymentMethods = true,
+                        allowsDelayedPaymentMethods = false,
                     )
                 ) { isReady, error ->
                     if (error != null) {
@@ -83,11 +91,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(key1 = true, block = {
+            val state = viewModel.state.collectAsState(initial = StripeUIStates.Loading)
+            LaunchedEffect(key1 = !ready.value, block = {
+                viewModel.prepareScreen()
+            })
+
+            LaunchedEffect(key1 = (state.value is StripeUIStates.Success && !ready.value), block = {
+                if (state.value !is StripeUIStates.Success) return@LaunchedEffect
                 setupStripeSdk(
-                    Keys.SECRET_KEY,
-                    Keys.CUSTOMER_KEY,
-                    Keys.EPHEMERAL_KEY
+                    (state.value as StripeUIStates.Success).secretKey,
+                    (state.value as StripeUIStates.Success).clientKey,
+                    (state.value as StripeUIStates.Success).ephemeralKey
                 )
             })
 
@@ -97,9 +111,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                    ) {
                         Text(
                             text = response.value,
                             style = TextStyle(

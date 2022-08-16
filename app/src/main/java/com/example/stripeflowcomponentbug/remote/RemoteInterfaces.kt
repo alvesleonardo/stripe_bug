@@ -10,8 +10,7 @@ import dagger.hilt.components.SingletonComponent
 object RemoteInterfaces {
 
     @Provides
-    fun providesService(
-        
-    )
+    fun providesService(remoteClient: RemoteClient): BackendApi =
+        remoteClient.create(BackendApi::class.java)
 
 }

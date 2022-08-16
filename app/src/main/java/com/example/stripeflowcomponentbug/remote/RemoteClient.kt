@@ -26,10 +26,13 @@ class RemoteClient @Inject constructor() {
 
     private val retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create(gson))
-        .baseUrl("https://stripe-mobile-payment-sheet-test-playground-v6.glitch.me/")
+        .baseUrl("https://doji-test.herokuapp.com/")
         .client(httpClient)
         .build()
-        .create(BackendApi::class.java)
+
+    fun <T> create(service: Class<T>): T {
+        return retrofit.create(service)
+    }
 
     private companion object {
         private const val TIMEOUT_SECONDS = 15L

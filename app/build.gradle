@@ -81,6 +81,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
+    def viewmodel_version = '2.2.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$viewmodel_version"
+
     //STRIPE
     implementation 'com.stripe:stripe-android:20.8.0'
     implementation 'com.stripe:stripecardscan:20.8.0'
