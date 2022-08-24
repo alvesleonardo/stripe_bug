@@ -12,7 +12,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -23,11 +25,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stripeflowcomponentbug.contants.Keys
 import com.example.stripeflowcomponentbug.ui.theme.StripeFlowComponentBugTheme
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.result.Result
+import com.google.gson.Gson
+import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.model.PaymentOption
+import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     private var paymentSelected: MutableState<PaymentOption?> = mutableStateOf(null)
@@ -82,11 +88,30 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(key1 = true, block = {
-                setupStripeSdk(
-                    Keys.SECRET_KEY,
-                    Keys.CUSTOMER_KEY,
-                    Keys.EPHEMERAL_KEY
-                )
+                Fuel.post("https://mango-outgoing-chamomile.glitch.me/checkout")
+                    .responseString { _, _, result ->
+                        when (result) {
+                            is Result.Failure -> {
+                                response.value =
+                                    "Preparing checkout failed\n${result.getException().message}"
+                            }
+                            is Result.Success -> {
+                                val response = Gson().fromJson(
+                                    result.get(),
+                                    ExampleCheckoutResponse::class.java
+                                )
+                                PaymentConfiguration.init(
+                                    applicationContext,
+                                    response.publishableKey
+                                )
+                                setupStripeSdk(
+                                    response.setupIntentClientSecret,
+                                    response.customer,
+                                    response.ephemeralKey
+                                )
+                            }
+                        }
+                    }
             })
 
             StripeFlowComponentBugTheme {
@@ -160,4 +185,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    @Serializable
+    data class ExampleCheckoutResponse(
+        val publishableKey: String,
+        val setupIntentClientSecret: String,
+        val customer: String? = null,
+        val ephemeralKey: String? = null
+    )
 }
